@@ -21,10 +21,8 @@ map:
   - data:rw
 options:
   debug: false
-  plate_detection: false
 schema:
   debug: bool
-  plate_detection: bool
 ports:
   8000/tcp: 8000
 ports_description:
