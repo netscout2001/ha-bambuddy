@@ -1,0 +1,31 @@
+name: Bambuddy
+version: "v0.2.2.1-0"
+slug: bambuddy
+description: Bambuddy is a powerful, self-hosted print archive and management system for Bambu Lab 3D printers.
+url: "https://github.com/netscout2001/ha-bambuddy"
+panel_icon: mdi:printer-3d
+panel_title: Bambuddy
+arch:
+  - armhf
+  - armv7
+  - aarch64
+  - amd64
+  - i386
+startup: services
+init: false
+privileged:
+  - NET_RAW
+host_network: true
+homeassistant_api: true
+map:
+  - data:rw
+options:
+  debug: false
+schema:
+  debug: bool
+ports:
+  8000/tcp: 8000
+ports_description:
+  8000/tcp: "Web interface port (direct access)."
+watchdog: "http://[HOST]:[PORT:8000]/health"
+webui: "http://[HOST]:[PORT:8000]"
