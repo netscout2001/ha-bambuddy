@@ -26,5 +26,10 @@ if [ "${debug}" = "true" ]; then
   export DEBUG=true
 fi
 
+if [ "${plate_detection}" = "true" ]; then
+  bashio::log.info 'Enabling plate detection via py3-opencv...'
+  export PYTHONPATH="/usr/lib/python3/site-packages:${PYTHONPATH:-}"
+fi
+
 bashio::log.info "Start Bambuddy on port ${port} ..."
 exec uvicorn backend.app.main:app --host 0.0.0.0 --port "${port}" --loop asyncio
