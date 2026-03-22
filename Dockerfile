@@ -1,5 +1,5 @@
 ARG BUILD_FROM
-FROM ghcr.io/maziggy/bambuddy:0.2.2.1 AS builder
+FROM ghcr.io/maziggy/bambuddy:0.2.2 AS builder
 FROM $BUILD_FROM
 
 WORKDIR /app
