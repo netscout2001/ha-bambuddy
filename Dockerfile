@@ -1,7 +1,7 @@
 ARG BUILD_FROM
 FROM ghcr.io/maziggy/bambuddy:0.2.2 AS builder
 # Zeige wo cv2 liegt
-RUN find /usr -name "cv2*" 2>/dev/null
+# RUN find /usr -name "cv2*" 2>/dev/null
 FROM $BUILD_FROM
 
 WORKDIR /app
@@ -23,8 +23,9 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 COPY --from=builder /app /app
 
-# Copy opencv from builder if available
-COPY --from=builder /usr/local/lib/python3.14/site-packages/cv2 /usr/local/lib/python3.14/site-packages/cv2
+# Copy opencv from builder
+COPY --from=builder /usr/local/lib/python3.13/site-packages/cv2 /usr/local/lib/python3.14/site-packages/cv2
+
 
 ENV PYTHONUNBUFFERED=1
 ENV DATA_DIR=/app/data
