@@ -5,7 +5,6 @@ declare plate_detection
 
 debug=$(bashio::config 'debug')
 port=$(bashio::addon.port "8000/tcp")
-plate_detection=$(bashio::config 'plate_detection')
 
 if [ "${port}" = "null" ] || [ -z "${port}" ]; then
   port="8000"
