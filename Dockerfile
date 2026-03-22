@@ -1,11 +1,8 @@
 ARG BUILD_FROM
 FROM ghcr.io/maziggy/bambuddy:0.2.2 AS builder
-
-RUN ls /usr/local/lib/python3.13/site-packages/cv2/
-RUN find / -name "libavif*" 2>/dev/null || true
-
-
+RUN echo "cache-break-1" && ls /usr/local/lib/python3.13/site-packages/cv2/ && find / -name "libavif*" 2>/dev/null || true
 FROM $BUILD_FROM
+
 WORKDIR /app
 RUN apk add --no-cache \
   build-base \
