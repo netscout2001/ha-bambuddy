@@ -1,0 +1,213 @@
+name: "Sync new upstream release -> create release and update files"
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  check-and-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout this repo (to edit files)"
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: "Get latest release from upstream (maziggy/bambuddy)"
+        id: upstream
+        run: |
+          set -euo pipefail
+
+          resp=$(curl -fsSL "https://api.github.com/repos/maziggy/bambuddy/releases/latest")
+          tag=$(printf '%s' "$resp" | jq -r .tag_name)
+          name=$(printf '%s' "$resp" | jq -r .name)
+          body=$(printf '%s' "$resp" | jq -r .body)
+          html_url=$(printf '%s' "$resp" | jq -r .html_url)
+
+          if [ -z "$tag" ] || [ "$tag" = "null" ]; then
+            echo "No upstream release found or API failure"
+            exit 2
+          fi
+
+          body_b64=$(printf '%s' "$body" | base64 -w0 || printf '%s' "$body" | base64)
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+          echo "name=$name" >> $GITHUB_OUTPUT
+          echo "body_b64=$body_b64" >> $GITHUB_OUTPUT
+          echo "html_url=$html_url" >> $GITHUB_OUTPUT
+
+      - name: "Read last synced upstream tag (if any)"
+        id: readlast
+        run: |
+          if [ -f .last_upstream_release_tag ]; then
+            last=$(cat .last_upstream_release_tag)
+          else
+            last=""
+          fi
+          echo "last=$last" >> $GITHUB_OUTPUT
+
+      - name: "Debug: show tags"
+        run: |
+          echo "upstream tag: ${{ steps.upstream.outputs.tag }}"
+          echo "last synced : ${{ steps.readlast.outputs.last }}"
+
+      - name: "Wait for upstream image to be available"
+        if: ${{ steps.upstream.outputs.tag != steps.readlast.outputs.last }}
+        run: |
+          set -euo pipefail
+
+          NEW_TAG="${{ steps.upstream.outputs.tag }}"
+          TAG_STRIPPED="${NEW_TAG#v}"
+          IMAGE_REF="ghcr.io/maziggy/bambuddy:${TAG_STRIPPED}"
+
+          MAX_RETRIES=20
+          SLEEP_SECONDS=30
+          TOTAL_WAIT=$((MAX_RETRIES * SLEEP_SECONDS))
+
+          echo "Checking availability of upstream image: ${IMAGE_REF}"
+          echo "Will try up to ${MAX_RETRIES} times (total ~${TOTAL_WAIT}s), sleeping ${SLEEP_SECONDS}s between tries."
+
+          try_manifest_check() {
+            manifest_url="https://ghcr.io/v2/maziggy/bambuddy/manifests/${TAG_STRIPPED}"
+            http_code=$(curl -s -o /dev/null -w "%{http_code}" -H "Accept: application/vnd.docker.distribution.manifest.v2+json" "${manifest_url}" || echo "000")
+            if [ "$http_code" = "200" ]; then
+              return 0
+            fi
+            return 1
+          }
+
+          try_docker_pull() {
+            if docker pull "${IMAGE_REF}" >/dev/null 2>&1; then
+              docker image rm "${IMAGE_REF}" >/dev/null 2>&1 || true
+              return 0
+            fi
+            return 1
+          }
+
+          found=0
+          attempt=0
+          while [ "$attempt" -lt "$MAX_RETRIES" ]; do
+            attempt=$((attempt + 1))
+            echo "Attempt ${attempt}/${MAX_RETRIES} — manifest check..."
+            if try_manifest_check; then
+              echo "Manifest found for ${IMAGE_REF}."
+              found=1
+              break
+            fi
+
+            echo "Manifest not found. Trying docker pull..."
+            if try_docker_pull; then
+              echo "docker pull succeeded for ${IMAGE_REF}."
+              found=1
+              break
+            fi
+
+            echo "Image not available yet. Sleeping ${SLEEP_SECONDS}s..."
+            sleep "${SLEEP_SECONDS}"
+          done
+
+          if [ "$found" -ne 1 ]; then
+            echo "ERROR: Upstream image ${IMAGE_REF} not available after ${MAX_RETRIES} attempts (~${TOTAL_WAIT}s)."
+            exit 4
+          fi
+
+          echo "Upstream image ${IMAGE_REF} is available — continuing."
+
+      - name: "Prepare repo changes (only if new upstream release)"
+        if: ${{ steps.upstream.outputs.tag != steps.readlast.outputs.last }}
+        run: |
+          set -euo pipefail
+
+          NEW_TAG="${{ steps.upstream.outputs.tag }}"
+          TAG_STRIPPED="${NEW_TAG#v}"
+          RELEASE_NAME="${{ steps.upstream.outputs.name }}"
+          RELEASE_BODY_B64="${{ steps.upstream.outputs.body_b64 }}"
+          RELEASE_BODY=$(printf '%s' "$RELEASE_BODY_B64" | base64 -d)
+          RELEASE_LINK="${{ steps.upstream.outputs.html_url }}"
+          TODAY=$(date --utc +%Y-%m-%d)
+          TODAY_BADGE=$(date --utc +%Y--%m--%d)
+
+          echo "Updating files for upstream tag $NEW_TAG"
+
+          # 1) Update CHANGELOG.md
+          if [ ! -f CHANGELOG.md ]; then
+            printf "# Changelog\n\n" > CHANGELOG.md
+          fi
+
+          HEADER_TAG="${TAG_STRIPPED}-0"
+          printf "## [%s] - %s\n\n%s\n\n(Upstream release: %s)\n\n" "$HEADER_TAG" "$TODAY" "$RELEASE_BODY" "$RELEASE_LINK" > /tmp/new_changelog_entry.md
+          cat /tmp/new_changelog_entry.md CHANGELOG.md > /tmp/CHANGELOG.new && mv /tmp/CHANGELOG.new CHANGELOG.md
+
+          # 2) Update Dockerfile
+          if [ -f Dockerfile ]; then
+            sed -E -i.bak "s#ghcr\.io/maziggy/bambuddy(:[^[:space:]\"]+)?#ghcr.io/maziggy/bambuddy:${TAG_STRIPPED}#g" Dockerfile || true
+            rm -f Dockerfile.bak || true
+          else
+            echo "WARNING: Dockerfile not found; skipping Dockerfile update"
+          fi
+
+          # 3) Update README badges
+          if [ -f README.md ]; then
+            sed -E -i.bak "s#(\[Bambuddy-version-shield\]:[[:space:]]*)https?://[^[:space:]]*#\1https://img.shields.io/badge/version-${NEW_TAG}--0-blue.svg#g" README.md || true
+            sed -E -i.bak "s#(\[Bambuddy-update-shield\]:[[:space:]]*)https?://[^[:space:]]*#\1https://img.shields.io/badge/Updated%20on-${TODAY_BADGE}-blue.svg#g" README.md || true
+            rm -f README.md.bak || true
+          else
+            echo "WARNING: README.md not found; skipping badge updates"
+          fi
+
+          # 4) Update config.yaml version
+          if [ -f config.yaml ]; then
+            if grep -qE '^version:' config.yaml; then
+              sed -E -i.bak "s/^version:.*$/version: \"${NEW_TAG}-0\"/" config.yaml || true
+              rm -f config.yaml.bak || true
+            else
+              printf "\nversion: \"%s-0\"\n" "$NEW_TAG" >> config.yaml
+            fi
+          else
+            printf "version: \"%s-0\"\n" "$NEW_TAG" > config.yaml
+          fi
+
+          # 5) Record last tag
+          printf "%s" "$NEW_TAG" > .last_upstream_release_tag
+
+          # 6) Commit & push
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md Dockerfile README.md config.yaml .last_upstream_release_tag || true
+          git commit -m "chore: sync from upstream release ${NEW_TAG}" || (echo "No changes to commit" && exit 1)
+          git push origin HEAD:main
+
+      - name: "Create release in this repo (only if new upstream release)"
+        if: ${{ steps.upstream.outputs.tag != steps.readlast.outputs.last }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          NEW_TAG="${{ steps.upstream.outputs.tag }}"
+          RELEASE_NAME="${{ steps.upstream.outputs.name }}"
+          RELEASE_BODY_B64="${{ steps.upstream.outputs.body_b64 }}"
+          RELEASE_BODY=$(printf '%s' "$RELEASE_BODY_B64" | base64 -d)
+
+          api_url="https://api.github.com/repos/${{ github.repository }}/releases"
+          HA_TAG="${NEW_TAG}-0"
+          HA_NAME="${RELEASE_NAME}-0"
+          payload=$(jq -n --arg tag "$HA_TAG" --arg name "$HA_NAME" --arg body "$RELEASE_BODY" \
+            '{ tag_name: $tag, name: $name, body: $body, draft: false, prerelease: false }')
+
+          http_code=$(curl -s -o /tmp/release_resp.json -w "%{http_code}" -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            "$api_url" -d "$payload")
+
+          if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+            echo "Release created successfully."
+          else
+            echo "Failed to create release. HTTP code: $http_code"
+            cat /tmp/release_resp.json || true
+            exit 3
+          fi
