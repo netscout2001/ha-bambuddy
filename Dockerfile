@@ -11,8 +11,7 @@ RUN apk add --no-cache \
   curl \
   ffmpeg \
   libstdc++ \
-  libgomp \
-  py3-opencv
+  libgomp
 
 # Install Python dependencies
 COPY --from=builder /app/requirements.txt ./
@@ -21,6 +20,9 @@ RUN --mount=type=cache,target=/root/.cache/pip \
   pip install --root-user-action=ignore -r requirements.txt
 
 COPY --from=builder /app /app
+
+# Copy opencv from builder if available
+COPY --from=builder /usr/local/lib/python3.14/site-packages/cv2 /usr/local/lib/python3.14/site-packages/cv2
 
 ENV PYTHONUNBUFFERED=1
 ENV DATA_DIR=/app/data
