@@ -25,6 +25,11 @@ COPY --from=builder /app /app
 
 # Copy opencv from builder
 COPY --from=builder /usr/local/lib/python3.13/site-packages/cv2 /usr/local/lib/python3.14/site-packages/cv2
+# Copy opencv from builder
+COPY --from=builder /usr/local/lib/python3.13/site-packages/cv2 /usr/local/lib/python3.14/site-packages/cv2
+COPY --from=builder /usr/local/lib/python3.13/site-packages/opencv_python_headless*.dist-info /usr/local/lib/python3.14/site-packages/
+
+RUN ls -la /usr/local/lib/python3.13/site-packages/cv2/
 
 
 ENV PYTHONUNBUFFERED=1
