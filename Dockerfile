@@ -1,8 +1,10 @@
 ARG BUILD_FROM
 FROM ghcr.io/maziggy/bambuddy:0.2.2 AS builder
-# Debug: zeige alle cv2 libs im builder
-RUN ls -la /usr/local/lib/python3.13/site-packages/cv2/
-RUN find /usr/local/lib -name "libavif*" 2>/dev/null
+
+RUN ls /usr/local/lib/python3.13/site-packages/cv2/
+RUN find / -name "libavif*" 2>/dev/null || true
+
+
 FROM $BUILD_FROM
 WORKDIR /app
 RUN apk add --no-cache \
