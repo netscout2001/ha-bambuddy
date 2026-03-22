@@ -1,5 +1,5 @@
 ARG BUILD_FROM
-FROM ghcr.io/maziggy/bambuddy:0.2.2.1 AS builder
+FROM ghcr.io/maziggy/bambuddy:latest AS builder
 RUN ls /usr/local/lib/python3.13/site-packages/cv2/ && find / -name "libavif*" 2>/dev/null || true
 FROM $BUILD_FROM
 
