@@ -26,5 +26,8 @@ if [ "${debug}" = "true" ]; then
   export DEBUG=true
 fi
 
+bashio::log.info "numpy test: $(python3 -c 'import numpy; print(numpy.__version__)' 2>&1)"
+bashio::log.info "cv2 test: $(python3 -c 'import cv2; print(cv2.__version__)' 2>&1)"
+
 bashio::log.info "Start Bambuddy on port ${port} ..."
 exec uvicorn backend.app.main:app --host 0.0.0.0 --port "${port}" --loop asyncio
