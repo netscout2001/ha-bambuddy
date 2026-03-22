@@ -17,7 +17,10 @@ RUN sed -i 's/opencv-python-headless/# opencv-python-headless/' /app/requirement
 RUN --mount=type=cache,target=/root/.cache/pip \
   pip install --root-user-action=ignore -r requirements.txt
 COPY --from=builder /app /app
+# Copy opencv libs from builder
 COPY --from=builder /usr/local/lib/python3.13/site-packages/cv2 /usr/local/lib/python3.14/site-packages/cv2
+COPY --from=builder /usr/local/lib/libavif* /usr/local/lib/
+
 ENV PYTHONUNBUFFERED=1
 ENV DATA_DIR=/app/data
 ENV LOG_DIR=/app/logs
