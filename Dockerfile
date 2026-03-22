@@ -10,7 +10,9 @@ RUN apk add --no-cache \
   curl \
   ffmpeg \
   libstdc++ \
-  libgomp
+  libgomp \
+  libavif
+
 COPY --from=builder /app/requirements.txt ./
 RUN sed -i 's/opencv-python-headless/# opencv-python-headless/' /app/requirements.txt
 RUN --mount=type=cache,target=/root/.cache/pip \
