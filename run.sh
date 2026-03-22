@@ -1,7 +1,6 @@
 #!/usr/bin/with-contenv bashio
 declare debug
 declare port
-declare plate_detection
 
 debug=$(bashio::config 'debug')
 port=$(bashio::addon.port "8000/tcp")
