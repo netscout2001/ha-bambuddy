@@ -32,6 +32,9 @@ Bambuddy is a powerful, self-hosted print archive and management system for Bamb
 | Option | Default | Description |
 |--------|---------|-------------|
 | `debug` | `false` | Enable debug logging |
+| `plate_detection` | `false` | Enable plate detection via opencv |
+
+> ⚠️ **Hinweis:** `plate_detection` nutzt `py3-opencv` vom System – kein zusätzlicher Download nötig.
 
 ## Ports
 
@@ -46,10 +49,10 @@ Releases are synced automatically from upstream.
 
 ---
 
-[Bambuddy-version-shield]: https://img.shields.io/badge/version-v0.2.2.1--0-blue.svg
+[Bambuddy-version-shield]: https://img.shields.io/badge/version-v0.2.2--0-blue.svg
 [Bambuddy-version]: https://github.com/maziggy/bambuddy/releases
 [Bambuddy-update-shield]: https://img.shields.io/badge/Updated%20on-2026--03--22-blue.svg
 [Bambuddy-update]: https://github.com/maziggy/bambuddy/releases
 [license-shield]: https://img.shields.io/badge/license-MIT-blue.svg
 [repo-badge]: https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg
-[repo-url]: https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fnetscout2001%2Fha-bambuddy
+[repo-url]: https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fnetscout2001%2Fhomeassistant-addon-bambuddy
