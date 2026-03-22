@@ -32,9 +32,6 @@ Bambuddy is a powerful, self-hosted print archive and management system for Bamb
 | Option | Default | Description |
 |--------|---------|-------------|
 | `debug` | `false` | Enable debug logging |
-| `plate_detection` | `false` | Enable plate detection via opencv |
-
-> ⚠️ **Hinweis:** `plate_detection` nutzt `py3-opencv` vom System – kein zusätzlicher Download nötig.
 
 ## Ports
 
