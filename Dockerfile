@@ -1,7 +1,7 @@
 FROM ghcr.io/maziggy/bambuddy:0.2.2.1
-RUN cat /proc/1/cmdline 2>/dev/null || true && \
-    cat /entrypoint.sh 2>/dev/null || true && \
-    ls /docker-entrypoint* 2>/dev/null || true
+RUN cat /proc/1/cmdline || true
+RUN ls -la / || true
+RUN ls -la /app || true
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
   curl jq bash \
