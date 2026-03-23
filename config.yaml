@@ -6,11 +6,8 @@ url: "https://github.com/netscout2001/homeassistant-addon-bambuddy"
 panel_icon: mdi:printer-3d
 panel_title: Bambuddy
 arch:
-  - armhf
-  - armv7
   - aarch64
   - amd64
-  - i386
 startup: services
 init: false
 privileged:
