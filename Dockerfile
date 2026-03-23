@@ -1,7 +1,8 @@
 FROM ghcr.io/maziggy/bambuddy:0.2.2.1
-RUN cat /proc/1/cmdline || true
-RUN ls -la / || true
-RUN ls -la /app || true
+RUN cat /proc/self/cmdline 2>/dev/null | tr '\0' ' ' || true
+RUN ls -la /usr/local/bin/ | grep -i entry || true  
+RUN find / -name "entrypoint*" -o -name "docker-entrypoint*" 2>/dev/null | head -10 || true
+RUN cat /Dockerfile 2>/dev/null || true
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
   curl jq bash \
