@@ -1,11 +1,7 @@
-ARG BUILD_FROM
 FROM ghcr.io/maziggy/bambuddy:0.2.2.1
 
-# bashio installieren für HA addon Kompatibilität
 RUN apt-get update && apt-get install -y --no-install-recommends \
-  curl \
-  jq \
-  bash \
+  curl jq bash \
   && rm -rf /var/lib/apt/lists/* \
   && mkdir -p /usr/lib/bashio \
   && curl -fsSL https://raw.githubusercontent.com/hassio-addons/bashio/master/lib/bashio.sh \
@@ -19,4 +15,5 @@ ENV LOG_DIR=/app/logs
 
 COPY run.sh /run.sh
 RUN chmod +x /run.sh
-CMD ["/run.sh"]
+
+ENTRYPOINT ["/run.sh"]
