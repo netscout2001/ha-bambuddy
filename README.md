@@ -52,4 +52,4 @@ Releases are synced automatically from upstream.
 [Bambuddy-update]: https://github.com/maziggy/bambuddy/releases
 [license-shield]: https://img.shields.io/badge/license-MIT-blue.svg
 [repo-badge]: https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg
-[repo-url]: https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fnetscout2001%2Fhomeassistant-addon-bambuddy
+[repo-url]: https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fnetscout2001%2Fha-bambuddy
