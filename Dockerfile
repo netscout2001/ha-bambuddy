@@ -11,8 +11,7 @@ ENV PYTHONUNBUFFERED=1
 ENV DATA_DIR=/app/data
 ENV LOG_DIR=/app/logs
 
-
-FROM ghcr.io/maziggy/bambuddy:0.2.2.1
+# Debug: zeige Entrypoint/Start-Prozesse
 RUN ls -la /usr/local/bin/ 2>/dev/null || true
 RUN ls -la /usr/bin/ | grep -i uvi 2>/dev/null || true  
 RUN cat /start.sh 2>/dev/null || true
