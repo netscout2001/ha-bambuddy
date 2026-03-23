@@ -12,14 +12,13 @@ ENV DATA_DIR=/app/data
 ENV LOG_DIR=/app/logs
 
 
-RUN ls /etc/services.d/ 2>/dev/null || true
-RUN ls /etc/cont-init.d/ 2>/dev/null || true
-RUN cat /etc/services.d/*/run 2>/dev/null || true
-# Originalen Startprozess deaktivieren
-RUN find /etc/services.d -mindepth 1 -maxdepth 1 ! -name "bambuddy" -exec rm -rf {} + 2>/dev/null || true
-RUN find /etc/cont-init.d -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
-
-
+FROM ghcr.io/maziggy/bambuddy:0.2.2.1
+RUN ls -la /usr/local/bin/ 2>/dev/null || true
+RUN ls -la /usr/bin/ | grep -i uvi 2>/dev/null || true  
+RUN cat /start.sh 2>/dev/null || true
+RUN cat /docker-entrypoint.sh 2>/dev/null || true
+RUN find /etc -name "supervisord*" 2>/dev/null || true
+RUN find / -maxdepth 3 -name "*.sh" 2>/dev/null | head -20 || true
 
 COPY rootfs /
 RUN chmod +x /etc/services.d/bambuddy/run
