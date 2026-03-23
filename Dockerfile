@@ -11,9 +11,15 @@ ENV PYTHONUNBUFFERED=1
 ENV DATA_DIR=/app/data
 ENV LOG_DIR=/app/logs
 
+
+RUN ls /etc/services.d/ 2>/dev/null || true
+RUN ls /etc/cont-init.d/ 2>/dev/null || true
+RUN cat /etc/services.d/*/run 2>/dev/null || true
 # Originalen Startprozess deaktivieren
 RUN find /etc/services.d -mindepth 1 -maxdepth 1 ! -name "bambuddy" -exec rm -rf {} + 2>/dev/null || true
 RUN find /etc/cont-init.d -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
+
+
 
 COPY rootfs /
 RUN chmod +x /etc/services.d/bambuddy/run
