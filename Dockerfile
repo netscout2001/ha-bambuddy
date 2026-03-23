@@ -11,13 +11,7 @@ ENV PYTHONUNBUFFERED=1
 ENV DATA_DIR=/app/data
 ENV LOG_DIR=/app/logs
 
-# Debug: zeige Entrypoint/Start-Prozesse
-RUN ls -la /usr/local/bin/ 2>/dev/null || true
-RUN ls -la /usr/bin/ | grep -i uvi 2>/dev/null || true  
-RUN cat /start.sh 2>/dev/null || true
-RUN cat /docker-entrypoint.sh 2>/dev/null || true
-RUN find /etc -name "supervisord*" 2>/dev/null || true
-RUN find / -maxdepth 3 -name "*.sh" 2>/dev/null | head -20 || true
+COPY run.sh /run.sh
+RUN chmod +x /run.sh
 
-COPY rootfs /
-RUN chmod +x /etc/services.d/bambuddy/run
+ENTRYPOINT ["/bin/bash", "/run.sh"]
