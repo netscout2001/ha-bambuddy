@@ -1,4 +1,4 @@
-FROM ghcr.io/maziggy/bambuddy:0.2.2.1
+FROM ghcr.io/maziggy/bambuddy:0.2.2.2
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
   curl jq bash \

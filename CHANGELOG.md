@@ -1,3 +1,68 @@
+## [0.2.2.2-0] - 2026-03-27
+
+  **Bambuddy v0.2.2.2**
+
+  **Highlights**
+
+  - External Folder Mounting for File Manager (#124) — Mount NAS shares, USB drives, or network storage into the File Manager without copying files.
+  - Persistent Auto-Off for Smart Plugs (#826) — "Keep Enabled" toggle keeps auto-off active between prints instead of one-shot behavior. Great for accessories like BentoBox filters.
+
+  **New Features**
+
+  - Persistent Auto-Off for Smart Plugs (#826) — Smart plugs now have a "Keep Enabled" toggle under Auto Off settings. When enabled, auto-off stays active between prints instead of requiring manual re-enablement after each print.
+  - Missing Spool Assignment Notification (#763) — Warning toast and push notification when a print starts with unmapped AMS slots. Includes printer name, slot labels, and expected material. Contributed by @Keybored02.
+  - Mid-Print Spool Reassignment Tracking (#763) — Usage tracking now correctly handles spool swaps during a print. Contributed by @Keybored02.
+  - Auto-Link Untagged Inventory Spools on AMS Insert (#538) — Automatically links RFID tags to existing untagged spools with matching material/color instead of creating duplicates. FIFO ordering.
+  - External Folder Mounting for File Manager (#124) — Mount host directories (NAS, USB, network storage) into the File Manager. Files are indexed but accessed from their original location — nothing is copied. Supports read-only mode, hidden file filtering, and thumbnail extraction.
+  - Ukrainian Hryvnia Currency (#815) — Added UAH/₴ to known currencies for filament cost tracking.
+
+  **Improved**
+
+  - Spool Assignment Changes Sync Across Tabs — WebSocket broadcast keeps all clients in sync
+  - Unassign Button in Edit Spool Modal — Remove AMS slot assignment without deleting the tag
+  - Spool Notes in Assign Spool Modal (#793) — Hover tooltip shows spool notes.
+  - WiFi Safeguard for SpoolBuddy Pi — APT hook preserves WiFi connections during system upgrades
+  - SpoolBuddy Inventory Page — New kiosk page with spool grid, search, filter pills, and tap-to-detail view
+  - SpoolBuddy AMS Slot Action Picker — Contextual actions (Configure, Assign/Unassign) on slot tap
+  - SpoolBuddy Assign-to-AMS Material Mismatch Warnings — Warns on material/profile mismatch when assigning spools
+  - SpoolBuddy System Tab — Live OS stats (CPU temp, memory, disk, uptime) from the Raspberry Pi
+  - SpoolBuddy Auto-Navigate on Tag Scan — Returns to dashboard when a tag is scanned on any page
+  - SpoolBuddy Swipe to Switch Printers — Left/right swipe cycles through online printers
+  - SpoolBuddy Boot Splash Polished — New logo-only splash with green glow bloom
+  - SpoolBuddy Virtual Keyboard Layout Fix — Keyboard now participates in flex layout; number inputs work
+  - SpoolBuddy Settings Device Tab Compacted — Fits on touchscreen without scrolling
+  - SpoolBuddy Init & Diagnostic Improvements (#814) — Contributed by @Keybored02
+  - Removed Diagnostic Buttons from Write Tag Page — Diagnostics moved to Settings only
+
+  **Fixed**
+
+  - Print Fails on Files With Spaces in Name (#824) — Filenames with spaces caused the printer to silently ignore the print command. The MQTT url field contained unencoded spaces the firmware couldn't parse. Fixed by replacing spaces with underscores in the remote filename.
+  - Virtual Printer Proxy A1 Printing Fails (#757) — A1/P1S proxy mode failed because ports 2024-2026 weren't proxied.
+  - H2D External Spool Print Fails (#797) — 0700_8012 "Failed to get AMS mapping table" when printing from external spool on H2D.
+  - Spool Assignment on Empty AMS Slots (#784) — Assigning spools to truly empty slots created a stuck state. Also fixed stale slot data on H2D.
+  - Log Flood: "State is FINISH but completion NOT triggered" (#790) — Diagnostic message fired on every MQTT update in FINISH/FAILED state, flooding logs in printer farms.
+  - ffmpeg Process Leak Causing Memory Growth (#776) — Camera ffmpeg processes accumulated over time, consuming GB of RAM.
+  - SpoolBuddy Updates Now Use SSH — Replaced fragile self-update with SSH-based updates driven by Bambuddy. Automatic key pairing, branch-aware, Force Update button.
+  - SpoolBuddy Update Check Always Shows "Up to Date" — Was comparing against GitHub releases instead of backend version.
+  - SpoolBuddy NFC Write Fails on NTAG Tags — Multiple PN5180 state machine and CRC issues prevented writing NTAG 213/215/216 tags.
+  - SpoolBuddy Read Tag Diagnostic Fails on NTAG Tags — Five issues preventing NTAG reads in the diagnostic script.
+  - SpoolBuddy Scale First Reading Always Wrong — NAU7802 ADC stale first reading polluted the moving average. Also extracted hardware drivers into proper modules.
+  - SpoolBuddy Low Filament Warning Missing Slot Number — Showed "AMS B" instead of "B2".
+  - SpoolBuddy Assign Spool Modal Clipping Display — Modal overflowed off-screen on the touchscreen.
+  - SpoolBuddy Kiosk Starts Before Network Is Ready — Kiosk now waits for network-online.target.
+  - SpoolBuddy Update UI Stale After Restart — Old version shown permanently after update.
+  - Delete Tag Leaves Stale Tag Type — Only tag_uid was cleared, not tray_uuid/tag_type/data_origin.
+  - Database Connection Pool Exhaustion on Large Printer Farms — Increased pool from 30 to 220 connections.
+  - Frontend Not Updating After Deploy — Service worker served stale cached bundles.
+  - Spoolman Sidebar Opens Root URL Instead of Spool Page — Now navigates to /spool.
+
+  Contributors
+
+  - @Keybored02 (#787, #789, #814)
+  
+
+(Upstream release: https://github.com/maziggy/bambuddy/releases/tag/v0.2.2.2)
+
 ## [0.2.2.1-0] - 2026-03-22
 
   # Bambuddy v0.2.2.1
